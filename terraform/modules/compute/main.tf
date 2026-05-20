@@ -34,7 +34,7 @@ resource "aws_iam_instance_profile" "profile" {
 resource "aws_launch_template" "backend" {
   name_prefix   = "backend-lt-"
   image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   
   iam_instance_profile { name = aws_iam_instance_profile.profile.name }
 

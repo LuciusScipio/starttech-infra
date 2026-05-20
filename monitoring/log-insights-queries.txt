@@ -1,0 +1,20 @@
+# Query 1: Error Volume Distribution & Analysis
+# Scope: Isolate application stack exceptions, faults, and server panic stack traces.
+fields @timestamp, @message, log_level, error
+| filter log_level == "ERROR" or @message like /(?i)(error|panic|fail|exception)/
+| sort @timestamp desc
+| limit 100
+
+# Query 2: Path Performance Profiling & Latency Diagnostics
+# Scope: Parse incoming API calls to surface request volume execution density metrics.
+fields @timestamp, @message, path, method, status, latency
+| filter @message like /"path":/ or @message like /"status":/
+| stats count(*) as RequestCount, avg(latency) as AvgLatencyByMs by path, status, method
+| sort RequestCount desc
+
+# Query 3: Service Availability & Infrastructure Ping Integrity Trace
+# Scope: Monitor Go application /ping paths to audit node lifecycle trends.
+fields @timestamp, @message
+| filter path == "/ping" or @message like /\/ping/
+| stats count(*) as PingCount by bin(1m)
+| sort @timestamp desc

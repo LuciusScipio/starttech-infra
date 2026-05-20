@@ -1,0 +1,47 @@
+name: Infrastructure Deployment Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.tf'
+      - '**.tfvars'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.tf'
+
+jobs:
+  terraform-pipeline:
+    name: Terraform Automation Engine
+    runs-on: ubuntu-latest
+    
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+
+    steps:
+      - name: Codebase Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform Binary
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Initialize Backend Working Directories
+        run: terraform init
+
+      - name: Enforce Structural Code Formatting Check
+        run: terraform fmt -check
+
+      - name: Run Schema Syntax Validation
+        run: terraform validate
+
+      - name: Generate Speculative Execution Strategy (Plan)
+        run: terraform plan -out=tfplan -var="instance_type=t3.micro"
+
+      - name: Commit Infrastructure Alterations (Apply)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan

@@ -1,0 +1,38 @@
+{
+    "Alarms": [
+        {
+            "AlarmName": "StartTech-High-CPU-Utilization-Breach",
+            "AlarmDescription": "Triggers when total average compute load exceeds safe cluster bounds (75%) over two assessment execution frames.",
+            "MetricName": "CPUUtilization",
+            "Namespace": "AWS/EC2",
+            "Statistic": "Average",
+            "Period": 300,
+            "EvaluationPeriods": 2,
+            "Threshold": 75.0,
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Dimensions": [
+                {
+                    "Name": "AutoScalingGroupName",
+                    "Value": "starttech-asg"
+                }
+            ]
+        },
+        {
+            "AlarmName": "StartTech-ALB-HTTP-Internal-Server-Errors",
+            "AlarmDescription": "Triggers critical operational intervention if the cluster returns more than 10 server-side 5XX responses in a single-minute frame.",
+            "MetricName": "HTTPCode_Target_5XX_Count",
+            "Namespace": "AWS/ApplicationELB",
+            "Statistic": "Sum",
+            "Period": 60,
+            "EvaluationPeriods": 1,
+            "Threshold": 10.0,
+            "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+            "Dimensions": [
+                {
+                    "Name": "LoadBalancer",
+                    "Value": "starttech-alb"
+                }
+            ]
+        }
+    ]
+}
